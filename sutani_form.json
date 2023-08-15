@@ -1,0 +1,41 @@
+{
+    "dev_name": "sutani_the",
+    "rol_cur_pos": "0.3 mm",
+    "tegangan":"100 Volt",
+    "tot_count":"2",
+    "logl": "asa",
+    "lat": "12",
+}
+
+{ 
+  "roller" : {
+    "initial_position": "",
+    "current_position"  : "0.3 mm",
+    "device_name"  : "",
+    "time_stamp"  : ""
+  },
+  "motor" : {
+    "counter"  : "1",
+    "total_counter": "",
+    "device_name"  : "",
+    "time_stamp"  : ""
+  },
+  "stang_wesel" : {
+    "burden"  : "100 N",
+    "device_name"  : "",
+    "time_stamp"  : ""
+  },
+  "electric current" : {
+    "tegangan"  : "100 Volt",
+    "time_stamp"  : ""
+  },
+  "position" : {
+    "latitude"  : "-0.368039",
+    "longitude"  : "13.080904",
+    "address" : "",
+    "daop"    : "2",
+    "train_speed" : "90 km/jam",
+    "name_train" :"Argo Bromo",
+    "station": "Jatibarang"
+  }
+}
