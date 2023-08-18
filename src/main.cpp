@@ -3,13 +3,21 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
+#include <Wire.h>
+#include <MPU6050_tockn.h>
 
 #define IR_Sensor 17 /*D14 IR pin defined*/
+#define getaranSensor 4
 //#define LED 27      /*D27 LED Pin defined*/
-int IR; 
+int IR, IR_temp;
+int counter; 
+int vib_sens;
+MPU6050 mpu6050(Wire);
+long timer = 0;
 
 const int trigPin = 18;
 const int echoPin = 5;
+
 const char* ssid = "gdg-wrk";
 const char* password = "gdg123wrk";
 const char* mqtt_server = "tampan.tech";
@@ -17,6 +25,10 @@ const char* mqtt_server = "tampan.tech";
 const char* mqttUser = "sutani_mqtt";
 const char* mqttPassword = "sutanipass";
 const char* mqttclientId = "musl";
+const int MPU_ADDR = 0x68; // I2C address of the MPU-6050
+int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
+
+
 
 char payload_data[1024];
 // LED Pin
@@ -96,6 +108,7 @@ void callback(char* topic, byte* message, unsigned int length) {
       digitalWrite(ledPin, LOW);
     }
   }
+  
 }
 
 void setup() {
@@ -106,10 +119,20 @@ void setup() {
   pinMode(trigPin, OUTPUT); // Sets the trigPin as an Output
   pinMode(echoPin, INPUT); // Sets the echoPin as an Input
   pinMode(IR_Sensor, INPUT);
+  pinMode(getaranSensor, INPUT);
   setup_wifi();
   client.setServer(mqtt_server, 1883);
 
   client.setCallback(callback);
+
+  Wire.begin(21, 22, 100000); // sda, scl, clock speed
+  mpu6050.begin();
+  mpu6050.calcGyroOffsets(true);
+
+  counter=0;
+  IR_temp=0;
+  vib_sens=1;
+
 }
 
 
@@ -197,15 +220,45 @@ void loop() {
     client.publish("v1/devices/me/telemetry", payload_data);
   }
 
+  /* counter ++*/
+  if(IR_temp!=IR){
+    counter++;
+  } 
+
+  IR_temp=IR;
+
+  Serial.print("Counter : ");
+  Serial.println(counter);
+  
+  /* getaran */
+  vib_sens = digitalRead(getaranSensor);
+  if (vib_sens==1){
+    Serial.println("bergetar");
+    delay(5000);
+  } else {
+    Serial.println("tidak bergetar");
+  }
+
   /* send data roller */
   send_rol_cur_pos(distanceCm*10);
   /* send data motor */
-  send_mot_tot_count(96);
+  send_mot_tot_count(counter/2);
   /* send tegangan*/
   send_tegangan(69.9);
   
 
 
+  /* Accelerometeer*/
+  mpu6050.update();
+  if(millis() - timer > 10){
+    Serial.print("angleX : ");
+    Serial.print(mpu6050.getAngleX());
+    Serial.print("\tangleY : ");
+    Serial.print(mpu6050.getAngleY());
+    Serial.print("\tangleZ : ");Serial.println(mpu6050.getAngleZ());
+    Serial.println("");
+    timer = millis();
+  }
 
   delay(1000);
   
