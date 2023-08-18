@@ -156,6 +156,18 @@ void reconnect() {
   }
 }
 
+void send_accelerometer(float x, float y, float z){
+  char temp_x[100];
+  sprintf(temp_x, "{\"accel_x\": \"%.2f\"}", x);
+  client.publish("v1/devices/me/telemetry", temp_x);
+  char temp_y[100];
+  sprintf(temp_y, "{\"accel_y\": \"%.2f\"}", y);
+  client.publish("v1/devices/me/telemetry", temp_y);
+  char temp_z[100];
+  sprintf(temp_z, "{\"accel_z\": \"%.2f\"}", z);
+  client.publish("v1/devices/me/telemetry", temp_z);
+}
+
 void send_rol_cur_pos(float rol_cur_pos){
   char temp_rol_cur_pos[100];
   sprintf(temp_rol_cur_pos,"{\"rol_cur_pos(mm)\": \"%.2f\"}", rol_cur_pos);
@@ -259,6 +271,7 @@ void loop() {
     Serial.println("");
     timer = millis();
   }
+  send_accelerometer(mpu6050.getAngleX(),mpu6050.getAngleY(),mpu6050.getAngleZ());
 
   delay(1000);
   
