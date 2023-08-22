@@ -15,8 +15,12 @@ int vib_sens;
 MPU6050 mpu6050(Wire);
 long timer = 0;
 
-const int trigPin = 18;
-const int echoPin = 5;
+//sonar1
+const int trigPin = 16;
+const int echoPin = 19;
+//sonar2
+const int trigPin2 = 5;
+const int echoPin2 = 18;
 
 const char* ssid = "gdg-wrk";
 const char* password = "gdg123wrk";
@@ -48,8 +52,11 @@ String input ="{\"roller\":{\"initial_position\":\"\",\"current_position\":\"0.3
 
 
 long duration;
+long duration2;
 float distanceCm;
+float distanceCm2;
 float distanceInch;
+float distanceInch2;
 
 int get_counterStats(){
   /* get counterstates */
@@ -118,6 +125,8 @@ void setup() {
   Serial.begin(115200); // Starts the serial communication
   pinMode(trigPin, OUTPUT); // Sets the trigPin as an Output
   pinMode(echoPin, INPUT); // Sets the echoPin as an Input
+  pinMode(trigPin2, OUTPUT); // Sets the trigPin as an Output
+  pinMode(echoPin2, INPUT); // Sets the echoPin as an Input
   pinMode(IR_Sensor, INPUT);
   pinMode(getaranSensor, INPUT);
   setup_wifi();
@@ -174,6 +183,24 @@ void send_rol_cur_pos(float rol_cur_pos){
   client.publish("v1/devices/me/telemetry", temp_rol_cur_pos);
 }
 
+void send_rol_cur_pos2(float rol_cur_pos_2){
+  char temp_rol_cur_pos_2[100];
+  sprintf(temp_rol_cur_pos_2,"{\"rol_cur_pos_2(mm)\": \"%.2f\"}", rol_cur_pos_2);
+  client.publish("v1/devices/me/telemetry", temp_rol_cur_pos_2);
+}
+
+void send_rol_cur_pos3(float rol_cur_pos_3){
+  char temp_rol_cur_pos_3[100];
+  sprintf(temp_rol_cur_pos_3,"{\"rol_cur_pos_2(mm)\": \"%.2f\"}", rol_cur_pos_3);
+  client.publish("v1/devices/me/telemetry", temp_rol_cur_pos_3);
+}
+
+void send_rol_cur_pos4(float rol_cur_pos_4){
+  char temp_rol_cur_pos_4[100];
+  sprintf(temp_rol_cur_pos_4,"{\"rol_cur_pos_2(mm)\": \"%.2f\"}", rol_cur_pos_4);
+  client.publish("v1/devices/me/telemetry", temp_rol_cur_pos_4);
+}
+
 void send_mot_tot_count(int total_count){
   char temp_mot_tot_count[100];
   sprintf(temp_mot_tot_count,"{\"mot_tot_count\": \"%d\"}", total_count);
@@ -196,15 +223,26 @@ void loop() {
   digitalWrite(trigPin, HIGH);
   delayMicroseconds(10);
   digitalWrite(trigPin, LOW);
+
+ 
   
   // Reads the echoPin, returns the sound wave travel time in microseconds
   duration = pulseIn(echoPin, HIGH);
-  
-  // Calculate the distance
-  distanceCm = duration * SOUND_SPEED/2;
-  
-  // Convert to inches
+  distanceCm = duration * SOUND_SPEED/2;  
   distanceInch = distanceCm * CM_TO_INCH;
+
+// Clears the trigPin
+  digitalWrite(trigPin2, LOW);
+  delayMicroseconds(2);
+  // Sets the trigPin on HIGH state for 10 micro seconds
+  digitalWrite(trigPin2, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin2, LOW);
+
+  // Reads the echoPin, returns the sound wave travel time in microseconds
+  duration2 = pulseIn(echoPin2, HIGH);
+  distanceCm2 = duration2 * SOUND_SPEED/2;  
+  distanceInch2 = distanceCm2 * CM_TO_INCH;
 
   /* lol */
   deserializeJson(doc, input);
@@ -214,8 +252,8 @@ void loop() {
   Serial.println(output);
   
   // Prints the distance in the Serial Monitor
-  Serial.print("Distance (cm): ");
-  Serial.println(distanceCm);
+  Serial.print("Distance (cm)2: ");
+  Serial.println(distanceCm2);
   Serial.print("Distance (inch): ");
   Serial.println(distanceInch);
   
@@ -256,6 +294,7 @@ void loop() {
   /* send data motor */
   send_mot_tot_count(counter/2);
   /* send tegangan*/
+  send_rol_cur_pos2(distanceCm2*2);
   send_tegangan(69.9);
   
 
