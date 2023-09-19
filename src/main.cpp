@@ -28,7 +28,7 @@ const char* mqtt_server = "tampan.tech";
 
 const char* mqttUser = "sutani_mqtt";
 const char* mqttPassword = "sutanipass";
-const char* mqttclientId = "musl";
+const char* mqttclientId = "sutani_pbg1";
 const int MPU_ADDR = 0x68; // I2C address of the MPU-6050
 int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
 
@@ -49,7 +49,7 @@ PubSubClient client(espClient);
 DynamicJsonDocument doc(1024);
 String input ="{\"roller\":{\"initial_position\":\"\",\"current_position\":\"0.3mm\",\"device_name\":\"\",\"time_stamp\":\"\"},\"motor\":{\"counter\":\"1\",\"total_counter\":\"\",\"device_name\":\"\",\"time_stamp\":\"\"},\"stang_wesel\":{\"burden\":\"100N\",\"device_name\":\"\",\"time_stamp\":\"\"},\"electriccurrent\":{\"tegangan\":\"100Volt\",\"time_stamp\":\"\"},\"position\":{\"latitude\":\"-0.368039\",\"longitude\":\"13.080904\",\"address\":\"\",\"daop\":\"2\",\"train_speed\":\"90km/jam\",\"name_train\":\"ArgoBromo\",\"station\":\"Jatibarang\"}}";
 
-
+String topicpost="temperature2";
 
 long duration;
 long duration2;
@@ -104,7 +104,7 @@ void callback(char* topic, byte* message, unsigned int length) {
 
   // If a message is received on the topic esp32/output, you check if the message is either "on" or "off". 
   // Changes the output state according to the message
-  if (String(topic) == "v1/devices/me/telemetry") {
+  if (String(topic) == "temperature2") {
     Serial.print("Changing output to ");
     if(messageTemp == "on"){
       Serial.println("on");
@@ -130,7 +130,7 @@ void setup() {
   pinMode(IR_Sensor, INPUT);
   pinMode(getaranSensor, INPUT);
   setup_wifi();
-  client.setServer(mqtt_server, 1883);
+  client.setServer(mqtt_server, 6996);
 
   client.setCallback(callback);
 
@@ -154,7 +154,7 @@ void reconnect() {
     if (client.connect(mqttclientId, mqttUser, mqttPassword)) {
       Serial.println("connected");
       // Subscribe
-      client.subscribe("v1/devices/me/telemetry");
+      client.subscribe("temperature2");
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
@@ -168,48 +168,48 @@ void reconnect() {
 void send_accelerometer(float x, float y, float z){
   char temp_x[100];
   sprintf(temp_x, "{\"accel_x\": \"%.2f\"}", x);
-  client.publish("v1/devices/me/telemetry", temp_x);
+  client.publish("temperature2", temp_x);
   char temp_y[100];
   sprintf(temp_y, "{\"accel_y\": \"%.2f\"}", y);
-  client.publish("v1/devices/me/telemetry", temp_y);
+  client.publish("temperature2", temp_y);
   char temp_z[100];
   sprintf(temp_z, "{\"accel_z\": \"%.2f\"}", z);
-  client.publish("v1/devices/me/telemetry", temp_z);
+  client.publish("temperature2", temp_z);
 }
 
 void send_rol_cur_pos(float rol_cur_pos){
   char temp_rol_cur_pos[100];
   sprintf(temp_rol_cur_pos,"{\"rol_cur_pos(mm)\": \"%.2f\"}", rol_cur_pos);
-  client.publish("v1/devices/me/telemetry", temp_rol_cur_pos);
+  client.publish("temperature2", temp_rol_cur_pos);
 }
 
 void send_rol_cur_pos2(float rol_cur_pos_2){
   char temp_rol_cur_pos_2[100];
   sprintf(temp_rol_cur_pos_2,"{\"rol_cur_pos_2(mm)\": \"%.2f\"}", rol_cur_pos_2);
-  client.publish("v1/devices/me/telemetry", temp_rol_cur_pos_2);
+  client.publish("temperature2", temp_rol_cur_pos_2);
 }
 
 void send_rol_cur_pos3(float rol_cur_pos_3){
   char temp_rol_cur_pos_3[100];
   sprintf(temp_rol_cur_pos_3,"{\"rol_cur_pos_2(mm)\": \"%.2f\"}", rol_cur_pos_3);
-  client.publish("v1/devices/me/telemetry", temp_rol_cur_pos_3);
+  client.publish("temperature2", temp_rol_cur_pos_3);
 }
 
 void send_rol_cur_pos4(float rol_cur_pos_4){
   char temp_rol_cur_pos_4[100];
   sprintf(temp_rol_cur_pos_4,"{\"rol_cur_pos_2(mm)\": \"%.2f\"}", rol_cur_pos_4);
-  client.publish("v1/devices/me/telemetry", temp_rol_cur_pos_4);
+  client.publish("temperature2", temp_rol_cur_pos_4);
 }
 
 void send_mot_tot_count(int total_count){
   char temp_mot_tot_count[100];
   sprintf(temp_mot_tot_count,"{\"mot_tot_count\": \"%d\"}", total_count);
-  client.publish("v1/devices/me/telemetry", temp_mot_tot_count);
+  client.publish("temperature2", temp_mot_tot_count);
 }
 void send_tegangan(float tegangan){
   char temp_tegangan[100];
   sprintf(temp_tegangan,  "{\"tegangan(V)\": \"%.2f\"}", tegangan);
-  client.publish("v1/devices/me/telemetry", temp_tegangan);
+  client.publish("temperature2", temp_tegangan);
 }
 
 void loop() {
@@ -267,7 +267,7 @@ void loop() {
   } else {
     Serial.println("tdk");
     output.toCharArray(payload_data, 1024);
-    client.publish("v1/devices/me/telemetry", payload_data);
+    client.publish("temperature2", payload_data);
   }
 
   /* counter ++*/
@@ -284,7 +284,7 @@ void loop() {
   vib_sens = digitalRead(getaranSensor);
   if (vib_sens==1){
     Serial.println("bergetar");
-    delay(5000);
+    //delay(5000);
   } else {
     Serial.println("tidak bergetar");
   }
